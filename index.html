@@ -3,72 +3,96 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Test VIDAA</title>
+<title>Ramiro TV Launcher</title>
 <style>
-  html,body{margin:0;height:100%;background:#05070f;color:#fff;font-family:Arial,sans-serif}
-  body{padding:2vh 3vw;box-sizing:border-box}
-  h1{font-size:4vh;margin:0 0 1vh}
-  #clock{font-size:6vh;font-weight:bold}
-  .row{font-size:2.6vh;margin:.6vh 0}
-  .ok{color:#4cff8a}.no{color:#ff5a5a}
-  #grid{display:flex;margin-top:2vh}
-  .card{width:18vw;height:12vw;margin-right:2vw;border-radius:1vw;background:#1b2340;
-        display:flex;align-items:center;justify-content:center;font-size:3vh;
-        transition:transform .25s,box-shadow .25s}
-  .card.focus{transform:scale(1.12);box-shadow:0 0 3vh #6ea8ff;background:#2b3a78}
-  #key{font-size:3.4vh;margin-top:2vh;color:#ffd75e}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  #spin{width:5vh;height:5vh;border:.6vh solid #6ea8ff;border-top-color:transparent;
-        border-radius:50%;animation:spin 1s linear infinite;margin-top:1vh}
+  html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02030a;
+    font-family:Arial,Helvetica,sans-serif;color:#fff}
+  #bg{position:fixed;left:0;top:0;width:100%;height:100%;z-index:0;
+    background:radial-gradient(ellipse at 20% 30%,#1a1250 0%,transparent 55%),
+               radial-gradient(ellipse at 80% 70%,#3a0f4a 0%,transparent 50%),
+               radial-gradient(ellipse at 50% 100%,#0a2a5a 0%,transparent 60%),#02030a}
+  #stars{position:fixed;left:0;top:0;width:100%;height:100%;z-index:1}
+  #top{position:fixed;z-index:2;top:5vh;right:5vw;text-align:right}
+  #clock{font-size:9vh;font-weight:bold;letter-spacing:.2vh;text-shadow:0 0 2vh rgba(120,160,255,.6)}
+  #date{font-size:3vh;color:#b8c4ff;margin-top:.5vh}
+  #title{position:fixed;z-index:2;top:6vh;left:5vw;font-size:4vh;font-weight:bold;
+    letter-spacing:.5vh;color:#cfd8ff}
+  #title span{color:#6ea8ff}
+  #row{position:fixed;z-index:2;left:0;right:0;top:36vh;display:flex;justify-content:center}
+  .card{display:flex;flex-direction:column;align-items:center;justify-content:center;
+    width:19vw;height:30vh;margin:0 1.2vw;border-radius:2vh;text-decoration:none;color:#fff;
+    background:rgba(255,255,255,.08);border:.3vh solid rgba(255,255,255,.18);
+    transition:transform .25s ease,box-shadow .25s ease,background .25s ease;outline:none}
+  .card .ic{width:10vh;height:10vh;border-radius:50%;display:flex;align-items:center;
+    justify-content:center;font-size:5vh;font-weight:bold;margin-bottom:2vh}
+  .card .nm{font-size:3.2vh;font-weight:bold}
+  .card:focus,.card:hover{transform:scale(1.14);background:rgba(255,255,255,.16);
+    box-shadow:0 0 5vh rgba(110,168,255,.75);border-color:#9cc2ff}
+  #c0 .ic{background:#e62117}
+  #c1 .ic{background:#b20710}
+  #c2 .ic{background:#0f79af}
+  #c3 .ic{background:#1db954;color:#04200d}
+  #dbg{position:fixed;z-index:2;left:1.5vw;bottom:1.5vh;font-size:2vh;color:#667}
 </style>
 </head>
 <body>
-<h1>Test de compatibilidad</h1>
-<div id="clock"></div>
-<div id="feat"></div>
-<div id="info" class="row"></div>
-<div id="spin"></div>
-<div id="grid">
-  <div class="card focus">YouTube</div>
-  <div class="card">Netflix</div>
-  <div class="card">Prime</div>
-  <div class="card">Spotify</div>
+<div id="bg"></div>
+<canvas id="stars"></canvas>
+<div id="title">RAMIRO <span>TV</span></div>
+<div id="top"><div id="clock"></div><div id="date"></div></div>
+<div id="row">
+  <a class="card" id="c0" href="https://www.youtube.com/tv" tabindex="0"><div class="ic">&#9654;</div><div class="nm">YouTube</div></a>
+  <a class="card" id="c1" href="https://www.netflix.com" tabindex="0"><div class="ic">N</div><div class="nm">Netflix</div></a>
+  <a class="card" id="c2" href="https://www.primevideo.com" tabindex="0"><div class="ic">P</div><div class="nm">Prime Video</div></a>
+  <a class="card" id="c3" href="https://open.spotify.com" tabindex="0"><div class="ic">S</div><div class="nm">Spotify</div></a>
 </div>
-<div id="key">Pulsa teclas del control...</div>
+<div id="dbg">Tecla: -</div>
 <script>
 (function(){
-  function check(name, ok){
-    var d=document.createElement('div');
-    d.className='row '+(ok?'ok':'no');
-    d.textContent=(ok?'OK  ':'NO  ')+name;
-    document.getElementById('feat').appendChild(d);
+  var dias=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+  var meses=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  function p(n){return n<10?'0'+n:''+n}
+  function tick(){
+    var n=new Date();
+    document.getElementById('clock').textContent=p(n.getHours())+':'+p(n.getMinutes());
+    document.getElementById('date').textContent=dias[n.getDay()]+', '+n.getDate()+' de '+meses[n.getMonth()]+' de '+n.getFullYear();
   }
-  var t=document.createElement('div').style;
-  check('CSS flexbox','flex' in t||'webkitFlex' in t);
-  check('CSS grid','grid' in t);
-  check('CSS transform','transform' in t||'webkitTransform' in t);
-  check('CSS transition','transition' in t||'webkitTransition' in t);
-  check('CSS animation','animation' in t||'webkitAnimation' in t);
-  check('CSS variables',!!(window.CSS&&CSS.supports&&CSS.supports('--a','0')));
-  check('backdrop-filter','backdropFilter' in t||'webkitBackdropFilter' in t);
-  check('localStorage',(function(){try{localStorage.setItem('t','1');return localStorage.getItem('t')==='1'}catch(e){return false}})());
-  check('fetch',typeof fetch==='function');
-  check('Promise',typeof Promise!=='undefined');
-  check('ES6 let/const/arrow',(function(){try{new Function('const a=()=>1;let b=a();return b');return true}catch(e){return false}})());
-  check('requestAnimationFrame',typeof requestAnimationFrame==='function');
-  check('Fullscreen API',!!(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen));
-  document.getElementById('info').textContent='Pantalla: '+screen.width+'x'+screen.height+' | Ventana: '+innerWidth+'x'+innerHeight+' | DPR: '+(window.devicePixelRatio||1)+' | UA: '+navigator.userAgent;
-  function tick(){var n=new Date();document.getElementById('clock').textContent=n.toLocaleTimeString()+'  '+n.toLocaleDateString();}
   tick();setInterval(tick,1000);
+
   var cards=document.querySelectorAll('.card'),idx=0;
-  function focusCard(i){cards[idx].className='card';idx=(i+cards.length)%cards.length;cards[idx].className='card focus';}
+  function go(i){idx=(i+cards.length)%cards.length;cards[idx].focus();}
+  go(0);
   document.addEventListener('keydown',function(e){
     var k=e.keyCode||e.which;
-    document.getElementById('key').textContent='keyCode: '+k+' | key: '+e.key+' | code: '+e.code;
-    if(k===37)focusCard(idx-1);
-    if(k===39)focusCard(idx+1);
-    if(k>=37&&k<=40)e.preventDefault();
+    document.getElementById('dbg').textContent='Tecla: '+k;
+    if(k===37){go(idx-1);e.preventDefault();}
+    else if(k===39){go(idx+1);e.preventDefault();}
+    else if(k===38||k===40){e.preventDefault();}
   });
+  for(var i=0;i<cards.length;i++){
+    (function(j){cards[j].addEventListener('focus',function(){idx=j;});})(i);
+  }
+
+  var cv=document.getElementById('stars'),cx=cv.getContext('2d'),W,H,stars=[];
+  function size(){W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;}
+  size();window.addEventListener('resize',size);
+  for(var s=0;s<130;s++){
+    stars.push({x:Math.random(),y:Math.random(),r:Math.random()*1.6+.3,
+      v:Math.random()*.00008+.00002,t:Math.random()*6.28});
+  }
+  function draw(){
+    cx.clearRect(0,0,W,H);
+    for(var q=0;q<stars.length;q++){
+      var st=stars[q];
+      st.x-=st.v;if(st.x<0){st.x=1;st.y=Math.random();}
+      st.t+=.03;
+      cx.globalAlpha=.45+.45*Math.sin(st.t);
+      cx.fillStyle='#fff';
+      cx.beginPath();cx.arc(st.x*W,st.y*H,st.r,0,6.28);cx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
 })();
 </script>
 </body>
