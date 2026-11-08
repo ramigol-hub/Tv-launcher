@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Test VIDAA</title>
+<style>
+  html,body{margin:0;height:100%;background:#05070f;color:#fff;font-family:Arial,sans-serif}
+  body{padding:2vh 3vw;box-sizing:border-box}
+  h1{font-size:4vh;margin:0 0 1vh}
+  #clock{font-size:6vh;font-weight:bold}
+  .row{font-size:2.6vh;margin:.6vh 0}
+  .ok{color:#4cff8a}.no{color:#ff5a5a}
+  #grid{display:flex;margin-top:2vh}
+  .card{width:18vw;height:12vw;margin-right:2vw;border-radius:1vw;background:#1b2340;
+        display:flex;align-items:center;justify-content:center;font-size:3vh;
+        transition:transform .25s,box-shadow .25s}
+  .card.focus{transform:scale(1.12);box-shadow:0 0 3vh #6ea8ff;background:#2b3a78}
+  #key{font-size:3.4vh;margin-top:2vh;color:#ffd75e}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  #spin{width:5vh;height:5vh;border:.6vh solid #6ea8ff;border-top-color:transparent;
+        border-radius:50%;animation:spin 1s linear infinite;margin-top:1vh}
+</style>
+</head>
+<body>
+<h1>Test de compatibilidad</h1>
+<div id="clock"></div>
+<div id="feat"></div>
+<div id="info" class="row"></div>
+<div id="spin"></div>
+<div id="grid">
+  <div class="card focus">YouTube</div>
+  <div class="card">Netflix</div>
+  <div class="card">Prime</div>
+  <div class="card">Spotify</div>
+</div>
+<div id="key">Pulsa teclas del control...</div>
+<script>
+(function(){
+  function check(name, ok){
+    var d=document.createElement('div');
+    d.className='row '+(ok?'ok':'no');
+    d.textContent=(ok?'OK  ':'NO  ')+name;
+    document.getElementById('feat').appendChild(d);
+  }
+  var t=document.createElement('div').style;
+  check('CSS flexbox','flex' in t||'webkitFlex' in t);
+  check('CSS grid','grid' in t);
+  check('CSS transform','transform' in t||'webkitTransform' in t);
+  check('CSS transition','transition' in t||'webkitTransition' in t);
+  check('CSS animation','animation' in t||'webkitAnimation' in t);
+  check('CSS variables',!!(window.CSS&&CSS.supports&&CSS.supports('--a','0')));
+  check('backdrop-filter','backdropFilter' in t||'webkitBackdropFilter' in t);
+  check('localStorage',(function(){try{localStorage.setItem('t','1');return localStorage.getItem('t')==='1'}catch(e){return false}})());
+  check('fetch',typeof fetch==='function');
+  check('Promise',typeof Promise!=='undefined');
+  check('ES6 let/const/arrow',(function(){try{new Function('const a=()=>1;let b=a();return b');return true}catch(e){return false}})());
+  check('requestAnimationFrame',typeof requestAnimationFrame==='function');
+  check('Fullscreen API',!!(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen));
+  document.getElementById('info').textContent='Pantalla: '+screen.width+'x'+screen.height+' | Ventana: '+innerWidth+'x'+innerHeight+' | DPR: '+(window.devicePixelRatio||1)+' | UA: '+navigator.userAgent;
+  function tick(){var n=new Date();document.getElementById('clock').textContent=n.toLocaleTimeString()+'  '+n.toLocaleDateString();}
+  tick();setInterval(tick,1000);
+  var cards=document.querySelectorAll('.card'),idx=0;
+  function focusCard(i){cards[idx].className='card';idx=(i+cards.length)%cards.length;cards[idx].className='card focus';}
+  document.addEventListener('keydown',function(e){
+    var k=e.keyCode||e.which;
+    document.getElementById('key').textContent='keyCode: '+k+' | key: '+e.key+' | code: '+e.code;
+    if(k===37)focusCard(idx-1);
+    if(k===39)focusCard(idx+1);
+    if(k>=37&&k<=40)e.preventDefault();
+  });
+})();
+</script>
+</body>
+</html>
